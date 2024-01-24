@@ -4,6 +4,12 @@ version = "0.1.0"
 edition = "2021"
 resolver = "2"
 rust-version = "1.71"
+readme = "README.md"
+license = "Apache-2.0"
+description = "esp-compatible implementations for the `rf-distributed` project"
+homepage = "https://github.com/lm98/rf-distributed-esp"
+documentation = "https://github.com/lm98/rf-distributed-esp"
+repository = "https://github.com/lm98/rf-distributed-esp"
 
 [profile.release]
 opt-level = "s"
