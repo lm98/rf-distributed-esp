@@ -33,7 +33,7 @@ impl<'a> EspMqttNetwork<'a> {
 
     pub fn subscribe_to_topics(client: &mut EspMqttClient, topics: Vec<i32>) -> NetworkResult<()> {
         for topic in topics {
-            client.subscribe(topic.to_string().as_str(), QoS::AtLeastOnce)?;
+            client.subscribe(&format!("hello-rufi/{topic}/subscriptions"), QoS::AtLeastOnce)?;
         }
         Ok(())
     }
