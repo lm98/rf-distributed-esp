@@ -1,6 +1,7 @@
 use std::sync::mpsc::{Sender, Receiver, self};
-use esp_idf_svc::mqtt::client::{EspMqttClient, MqttClientConfiguration, EspMqttMessage};
+use esp_idf_svc::mqtt::client::{EspMqttClient, MqttClientConfiguration, EspMqttMessage, Details::Complete};
 use esp_idf_svc::mqtt::client::QoS;
+use rf_distributed::message::Message;
 use rf_distributed::network::{NetworkResult, NetworkUpdate, sync::Network};
 use esp_idf_svc::mqtt::client::Event;
 
@@ -17,10 +18,12 @@ impl<'a> EspMqttNetwork<'a> {
             config, 
             move |message_event| match message_event {
                 Ok(Event::Received(msg)) => {
-                    let msg = EspMqttNetwork::process_message(msg);
-                    tx.send(NetworkUpdate::Update { msg }).unwrap();
+                    let update = EspMqttNetwork::process_message(msg);
+                    tx.send(update).unwrap();
                 },
-                _ => { tx.send(NetworkUpdate::None).unwrap(); },
+                _ => { 
+                    tx.send(NetworkUpdate::None).unwrap();
+                 },
             }).unwrap();
 
         EspMqttNetwork::subscribe_to_topics(&mut client, topics).unwrap();
@@ -38,8 +41,18 @@ impl<'a> EspMqttNetwork<'a> {
         Ok(())
     }
 
-    fn process_message(message: &EspMqttMessage) -> String {
-        serde_json::to_string(message.data()).unwrap()
+    fn process_message(message: &EspMqttMessage) -> NetworkUpdate {
+        match message.details() {
+            Complete => {
+                let message_data: &[u8] = message.data();
+                if let Ok(mex) = serde_json::from_slice::<Message>(message_data) {
+                    NetworkUpdate::Update { msg: serde_json::to_string(&mex).unwrap() }
+                } else {
+                    NetworkUpdate::None
+                }
+            },
+            _ => NetworkUpdate::None,
+        }
     }
 }
 
