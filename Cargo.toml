@@ -33,7 +33,7 @@ embassy = ["esp-idf-svc/embassy-sync", "esp-idf-svc/critical-section", "esp-idf-
 [dependencies]
 esp-idf-svc = "0.47.3"
 esp-idf-hal = "0.42.5"
-rf-distributed = "0.5.2"
+rf-distributed = "0.6.0"
 async-trait = "0.1.77"
 log = "0.4.20"
 serde_json = "1.0.111"
